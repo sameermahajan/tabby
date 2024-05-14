@@ -5,15 +5,18 @@ import rehypeSanitize from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { ScrollArea } from "@radix-ui/react-scroll-area"
-import { IconBlocks } from "@/components/ui/icons"
+import { IconBlocks, IconLayers, IconSparkles, IconPlus } from "@/components/ui/icons"
 import { CodeBlock } from '@/components/ui/codeblock'
 
 import { MemoizedReactMarkdown } from '@/components/markdown'
 
 interface Source {
   url: string;
+  title: string
+}
+
+interface Related {
   title: string
 }
 
@@ -29,6 +32,13 @@ const mockData = [{
   }, {
     url: 'https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/db/embedding/structure.sql',
     title: 'ee/db/embedding/structure.sql'
+  }],
+  related: [{
+    title: 'What are the key differences between safetensor and GGUF formats?'
+  }, {
+    title: 'Can you provide more detail on the tools and dependencies needed for converting a safetensor model to GGUF?'
+  }, {
+    title: 'What are the benefits of converting a safetensor model to GGUF format?'
   }]
 }]
 
@@ -38,7 +48,7 @@ export default function Search () {
     <div>
       <Header />
       <ScrollArea>
-        <div className="h-screen mx-auto max-w-lg md:max-w-5xl px-0 md:px-6">
+        <div className="h-screen mx-auto max-w-lg md:max-w-4xl px-0 md:px-6">
           <div className="">
             {mockData.map(data => (
               <QuestionAnswerPair
@@ -46,6 +56,7 @@ export default function Search () {
                 question={data.question}
                 answer={data.answer}
                 sources={data.sources}
+                related={data.related}
               />
             ))}
           </div>
@@ -64,32 +75,34 @@ function Header () {
 function QuestionAnswerPair ({
   question,
   answer,
-  sources
+  sources,
+  related
 }: {
   question: string;
   answer: string;
-  sources: Source[]
+  sources: Source[];
+  related: Related[]
 }) {
   return (
-    <div>
-      <h3 className="text-2xl font-semibold tracking-tight first:mt-0">
+    <div className="py-10">
+      <h3 className="text-2xl font-semibold tracking-tight first:mt-0 mb-4">
         {question}
       </h3>
 
-      <div className="flex items-center gap-x-2">
-        <IconBlocks />
-        <p>Source</p>
+      <div className="flex items-center gap-x-2 mb-1">
+        <IconBlocks className="relative" style={{ top: '-0.1rem' }} />
+        <p className="text-sm font-bold leading-normal">Source</p>
       </div>
-      <div className="grid grid-cols-2 gap-sm md:grid-cols-4">
-        {sources.map(source => (
-          <SourceCard key={source.url} source={source} />
+      <div className="grid gap-sm grid-cols-4 gap-x-2">
+        {sources.map((source, index) => (
+          <SourceCard key={source.url} source={source} index={index+1} />
         ))}
       </div>
       
 
-      <div className="flex items-center gap-x-2">
-        <IconBlocks />
-        <p>Answer</p>
+      <div className="flex items-center gap-x-1.5 mt-6">
+        <IconSparkles />
+        <p className="text-sm font-bold leading-none">Answer</p>
       </div>
       <MemoizedReactMarkdown
         className="prose prose-full-width break-words dark:prose-invert prose-p:leading-relaxed prose-pre:mt-1 prose-pre:p-0"
@@ -133,26 +146,56 @@ function QuestionAnswerPair ({
         {answer}
       </MemoizedReactMarkdown>
 
-      <div className="flex items-center gap-x-2">
-        <IconBlocks />
-        <p>Related</p>
+      <div className="flex items-center gap-x-1.5 mt-6">
+        <IconLayers />
+        <p className="text-sm font-bold leading-none">Related</p>
+      </div>
+      <div className="flex flex-col gap-y-3 mt-3">
+        {related.map((related, index) => (
+          <RealtedCard key={index} related={related} />
+        ))}
+      </div>
+
+    </div>
+  )
+}
+
+function SourceCard ({
+  source,
+  index
+}: {
+  source: Source;
+  index: number
+}) {
+  const { hostname } = new URL(source.url);
+  return (
+    <div className="border rounded-lg py-2 px-4 bg-card flex flex-col justify-between">
+      <p className="w-full text-ellipsis overflow-hidden text-xs font-semibold line-clamp-2 break-all">{source.title}</p>
+      <div className="flex items-center">
+        <img
+          src={`https://s2.googleusercontent.com/s2/favicons?sz=128&domain_url=${hostname}`}
+          alt={hostname}
+          className="h-3.5 w-3.5 mr-1 rounded-full" />
+
+        <div className="flex items-center text-xs gap-x-0.5 text-muted-foreground">
+          <p className="flex-1 text-ellipsis overflow-hidden">{hostname.split('.')[0]}</p>
+          <span className="relative -top-1.5 text-xl">.</span>
+          <p>{index}</p>
+        </div>
       </div>
     </div>
   )
 }
 
-function SourceCard ({source}: {source: Source}) {
-  const { hostname } = new URL(source.url);
+function RealtedCard ({
+  related
+}: {
+  related: Related
+}) {
   return (
-    <Alert className="flex">
-      <img
-        src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${hostname}`}
-        alt='hostname'
-        className="h-4 w-4 mr-1.5" />
-      <div>
-        <AlertTitle>{source.title}</AlertTitle>
-        <AlertDescription>{source.url}</AlertDescription>
-      </div>
-    </Alert>
+    <div className="border rounded-lg py-3 p-4 flex items-center justify-between">
+      <p className="w-full text-ellipsis overflow-hidden text-sm font-semibold">{related.title}</p>
+      <IconPlus />
+    </div>
   )
 }
