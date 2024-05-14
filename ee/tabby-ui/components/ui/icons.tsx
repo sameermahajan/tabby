@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 // FIXME(wwayne): Review each icons and consider re-export from `lucide-react`.
-import { BookOpenText, ChevronsDownUp, GitFork, Mail, Star } from 'lucide-react'
+import { BookOpenText, ChevronsDownUp, GitFork, Mail, Star, Blocks } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
@@ -1414,6 +1414,10 @@ const IconGitFork = ({
   <GitFork className={cn('h4 w-4', className)} {...props} />
 )
 
+function IconBlocks({ className, ...props }: React.ComponentProps<typeof Blocks>) {
+  return <Blocks className={cn('h4 w-4', className)} {...props} />
+}
+
 function IconVSCode({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
@@ -1524,6 +1528,7 @@ export {
   IconChevronsDownUp,
   IconStar,
   IconGitFork,
+  IconBlocks,
   IconVSCode,
   IconJetBrains
 }
