@@ -4,10 +4,15 @@ import rehypeRaw from 'rehype-raw'
 import rehypeSanitize from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
+import TextareaAutosize from 'react-textarea-autosize';
 
-import { ScrollArea } from "@radix-ui/react-scroll-area"
-import { IconBlocks, IconLayers, IconSparkles, IconPlus } from "@/components/ui/icons"
+import { cn } from '@/lib/utils'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { IconBlocks, IconLayers, IconSparkles, IconPlus, IconArrowRight } from "@/components/ui/icons"
 import { CodeBlock } from '@/components/ui/codeblock'
+import { Separator } from '@/components/ui/separator'
+import { Input } from '@/components/ui/input'
+import { Header } from '@/components/header'
 
 import { MemoizedReactMarkdown } from '@/components/markdown'
 
@@ -40,35 +45,84 @@ const mockData = [{
   }, {
     title: 'What are the benefits of converting a safetensor model to GGUF format?'
   }]
+}, {
+  question: "how to add function in python",
+  answer: "Hello World in Python. This is a basic example of a Python program.\nGetting Started. In this section, we'll walk through writing a simple Python program. This program will print out 'Hello, world!'.\nPrerequisites. This program requires Python 3. You can download Python 3 from the official website: https://www.python.org/downloads/\nCode. Here is the Python code:\n```python\ndef say_hello():\n    print('Hello, world!')\n\nsay_hello()\n```\nThis code defines a function, `say_hello`, that prints out the string 'Hello, world!'. Then, it calls this function.\nRunning the Code. To run the code, save it as a .py file and run it from the command line with Python 3.\nConclusion. Congratulations, you've just written and run your first Python program! The print function is one of the most basic functions in Python, but it's also one of the most useful. You can use it to display information, debug your code, and more. Happy coding!",
+  sources: [{
+    url: 'https://github.com/TabbyML/tabby/blob/main/clients/vscode/src/TabbyCompletionProvider.ts#L43-L58',
+    title: 'tabby/clients/vscode/src/TabbyCompletionProvider.ts'
+  }, {
+    url: 'https://github.com/TabbyML/tabby/issues/2083',
+    title: 'Run chat in command line'
+  }, {
+    url: 'https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/db/embedding/structure.sql',
+    title: 'ee/db/embedding/structure.sql'
+  }],
+  related: [{
+    title: 'What are the key differences between safetensor and GGUF formats?'
+  }, {
+    title: 'Can you provide more detail on the tools and dependencies needed for converting a safetensor model to GGUF?'
+  }, {
+    title: 'What are the benefits of converting a safetensor model to GGUF format?'
+  }]
 }]
 
 export default function Search () {
   // FIXME: the height considering demo banner
   return (
-    <div>
+    <div className="h-screen flex flex-col">
       <Header />
-      <ScrollArea>
-        <div className="h-screen mx-auto max-w-lg md:max-w-4xl px-0 md:px-6">
-          <div className="">
-            {mockData.map(data => (
-              <QuestionAnswerPair
-                key={data.question}
-                question={data.question}
-                answer={data.answer}
-                sources={data.sources}
-                related={data.related}
-              />
+      <ScrollArea className="flex-1">
+        <div className="mx-auto md:w-[48rem] px-0 md:px-6">
+          <div className="pb-20">
+            {mockData.map((data, idx) => (
+              <>
+                {idx !== 0 &&
+                  <Separator />
+                }
+                <QuestionAnswerPair
+                  key={data.question}
+                  question={data.question}
+                  answer={data.answer}
+                  sources={data.sources}
+                  related={data.related}
+                />
+              </>
             ))}
           </div>
         </div>
       </ScrollArea>
+
+      <SearchArea />
     </div>
   )
 }
 
-function Header () {
+function SearchArea () {
+  const onSearchKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) return e.preventDefault()
+  }
+
+  const onSearchKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      return alert('search')
+    }
+  }
+
   return (
-    <div></div>
+    <div className="fixed left-1/2 bottom-6 md:w-[48rem] md:-ml-[24rem] md:px-6">
+      <div className="w-full rounded-lg border border-muted-foreground flex items-center bg-background">
+        <TextareaAutosize
+          className="py-3 rounded-lg px-4 !border-none flex-1 !shadow-none !outline-none !ring-0 !ring-offset-0 bg-transparent resize-none"
+          placeholder='Ask a followup question'
+          maxRows={15}
+          onKeyDown={onSearchKeyDown}
+          onKeyUp={onSearchKeyUp} />
+        <div className="flex items-center rounded-lg p-1 bg-muted mr-3">
+          <IconArrowRight className="w-3.5 h-3.5 text-muted-foreground" />
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -84,19 +138,27 @@ function QuestionAnswerPair ({
   related: Related[]
 }) {
   return (
-    <div className="py-10">
+    <div className="py-16">
       <h3 className="text-2xl font-semibold tracking-tight first:mt-0 mb-4">
         {question}
       </h3>
 
       <div className="flex items-center gap-x-2 mb-1">
-        <IconBlocks className="relative" style={{ top: '-0.1rem' }} />
+        <IconBlocks className="relative" style={{ top: '-0.04rem' }} />
         <p className="text-sm font-bold leading-normal">Source</p>
       </div>
       <div className="grid gap-sm grid-cols-4 gap-x-2">
         {sources.map((source, index) => (
           <SourceCard key={source.url} source={source} index={index+1} />
         ))}
+        <div className="border rounded-lg py-2 px-4 bg-card flex flex-col justify-between">
+          <p className="w-full text-ellipsis overflow-hidden text-xs font-semibold line-clamp-2 break-all">asdfds</p>
+          <div className="flex items-center">
+            <div className="flex items-center text-xs gap-x-0.5 text-muted-foreground">
+              <p className="flex-1 text-ellipsis overflow-hidden">Check more</p>
+            </div>
+          </div>
+        </div>
       </div>
       
 
