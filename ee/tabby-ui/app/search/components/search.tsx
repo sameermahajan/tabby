@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm'
@@ -13,6 +14,14 @@ import { CodeBlock } from '@/components/ui/codeblock'
 import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
 import { Header } from '@/components/header'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 
 import { MemoizedReactMarkdown } from '@/components/markdown'
 
@@ -99,6 +108,9 @@ export default function Search () {
 }
 
 function SearchArea () {
+  const [isFocus, setIsFocus] = useState(false)
+  const [value, setValue] = useState('')
+
   const onSearchKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) return e.preventDefault()
   }
@@ -111,15 +123,23 @@ function SearchArea () {
 
   return (
     <div className="fixed left-1/2 bottom-6 md:w-[48rem] md:-ml-[24rem] md:px-6">
-      <div className="w-full rounded-lg border border-muted-foreground flex items-center bg-background">
+      <div className={cn("w-full rounded-lg transition-all border border-muted-foreground hover:border-muted-foreground/60 flex items-center bg-background", {
+        '!border-primary': isFocus
+      })}>
         <TextareaAutosize
           className="py-3 rounded-lg px-4 !border-none flex-1 !shadow-none !outline-none !ring-0 !ring-offset-0 bg-transparent resize-none"
           placeholder='Ask a followup question'
           maxRows={15}
           onKeyDown={onSearchKeyDown}
-          onKeyUp={onSearchKeyUp} />
-        <div className="flex items-center rounded-lg p-1 bg-muted mr-3">
-          <IconArrowRight className="w-3.5 h-3.5 text-muted-foreground" />
+          onKeyUp={onSearchKeyUp}
+          onFocus={() => setIsFocus(true)}
+          onBlur={() => setIsFocus(false)}
+          onChange={e => setValue(e.target.value)}
+          value={value} />
+        <div className={cn("flex items-center rounded-lg p-1 bg-muted text-muted-foreground mr-3 transition-all  ", {
+          "!bg-primary !text-primary-foreground": value.length > 0
+        })}>
+          <IconArrowRight className="w-3.5 h-3.5" />
         </div>
       </div>
     </div>
@@ -151,14 +171,37 @@ function QuestionAnswerPair ({
         {sources.map((source, index) => (
           <SourceCard key={source.url} source={source} index={index+1} />
         ))}
-        <div className="border rounded-lg py-2 px-4 bg-card flex flex-col justify-between">
-          <p className="w-full text-ellipsis overflow-hidden text-xs font-semibold line-clamp-2 break-all">asdfds</p>
-          <div className="flex items-center">
-            <div className="flex items-center text-xs gap-x-0.5 text-muted-foreground">
-              <p className="flex-1 text-ellipsis overflow-hidden">Check more</p>
+        <Sheet>
+          <SheetTrigger>
+            <div className="border rounded-lg py-2 px-4 bg-card flex flex-col justify-between gap-y-1 h-full">
+              <div className="flex items-center flex-1">
+                <img
+                  src={`https://s2.googleusercontent.com/s2/favicons?sz=128&domain_url=github.com`}
+                  alt="github.com"
+                  className="h-3.5 w-3.5 mr-1 rounded-full" />
+                
+                <img
+                src={`https://s2.googleusercontent.com/s2/favicons?sz=128&domain_url=github.com`}
+                alt="github.com"
+                className="h-3.5 w-3.5 mr-1 rounded-full" />
+              </div>
+              
+              <p className="flex items-center text-xs gap-x-0.5 text-muted-foreground">
+                Check mroe
+              </p>
             </div>
-          </div>
-        </div>
+          </SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>Are you absolutely sure?</SheetTitle>
+              <SheetDescription>
+                This action cannot be undone. This will permanently delete your account
+                and remove your data from our servers.
+              </SheetDescription>
+            </SheetHeader>
+          </SheetContent>
+        </Sheet>
+        
       </div>
       
 
@@ -231,7 +274,7 @@ function SourceCard ({
 }) {
   const { hostname } = new URL(source.url);
   return (
-    <div className="border rounded-lg py-2 px-4 bg-card flex flex-col justify-between">
+    <div className="border rounded-lg py-2 px-4 bg-card flex flex-col justify-between gap-y-1">
       <p className="w-full text-ellipsis overflow-hidden text-xs font-semibold line-clamp-2 break-all">{source.title}</p>
       <div className="flex items-center">
         <img
@@ -241,7 +284,7 @@ function SourceCard ({
 
         <div className="flex items-center text-xs gap-x-0.5 text-muted-foreground">
           <p className="flex-1 text-ellipsis overflow-hidden">{hostname.split('.')[0]}</p>
-          <span className="relative -top-1.5 text-xl">.</span>
+          <span className="relative -top-1.5 text-xl leading-none">.</span>
           <p>{index}</p>
         </div>
       </div>
