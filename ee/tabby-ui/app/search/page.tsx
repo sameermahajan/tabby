@@ -7,7 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function SearchPage() {
-  return (
-    <Search />
-  )
+  return <Search />
 }

@@ -32,7 +32,6 @@ import { queryDailyStats, queryDailyStatsInPastYear } from '@/lib/tabby/query'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import LoadingWrapper from '@/components/loading-wrapper'
-import { Input } from '@/components/ui/input'
 
 import { CompletionCharts } from './completion-charts'
 
@@ -283,10 +282,6 @@ export default function Stats() {
   if (!data?.me?.id) return <></>
   return (
     <div className="flex w-full flex-col gap-y-8">
-      
-      
-
-
       <LoadingWrapper
         loading={fetchingYearlyStats}
         fallback={<Skeleton className="h-48" />}
