@@ -33,7 +33,7 @@
   ],
   "scripts": {
     "build": "unbuild",
-    "dev": "unbuild --stub",
+    "dev": "vite",
     "fix": "eslint . -f mo --fix",
     "lint": "eslint . -f mo",
     "prepack": "nr build",
@@ -53,6 +53,7 @@
     "@antfu/ni": "^0.21.12",
     "@types/node": "^20.12.7",
     "@types/react": "^18.3.1",
+    "@vitejs/plugin-react-refresh": "^1.3.6",
     "bumpp": "^9.4.0",
     "eslint": "^9.1.1",
     "eslint-formatter-mo": "^1.2.0",
