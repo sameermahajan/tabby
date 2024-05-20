@@ -26,6 +26,7 @@ export default function ChatPage() {
 
   const server = useServer({
     init: request => {
+      console.log('init method')
       if (chatRef.current) return
       setActiveChatId(nanoid())
       setIsInit(true)
@@ -42,7 +43,7 @@ export default function ChatPage() {
   const onNavigateToContext = (context: Context) => {
     server?.navigate(context)
   }
-
+  console.log('isInit', isInit)
   if (!isInit || !fetcherOptions) return <></>
   const headers = {
     Authorization: `Bearer ${fetcherOptions.authorization}`
