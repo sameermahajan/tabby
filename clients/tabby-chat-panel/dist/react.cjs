@@ -7,9 +7,8 @@ require('@quilted/threads');
 function useClient(iframeRef, api) {
   const clientRef = react.useRef(null);
   react.useEffect(() => {
-    if (iframeRef.current && !clientRef.current) {
+    if (iframeRef.current && !clientRef.current)
       clientRef.current = index.createClient(iframeRef.current, api);
-    }
   }, [iframeRef.current]);
   return clientRef.current;
 }
