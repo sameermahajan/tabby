@@ -43,7 +43,7 @@
     "test": "vitest",
     "test:once": "vitest run",
     "typecheck": "tsc --noEmit",
-    "build:vscode": "esbuild src/vscode.tsx --bundle --minify --outfile=../vscode/webview/index.js --loader:.js=jsx",
+    "build:vscode": "yarn && esbuild src/vscode.tsx --bundle --minify --outfile=../vscode/webview/index.js --loader:.js=jsx",
     "dev:vscode": "esbuild src/vscode.tsx --bundle --outfile=../vscode/webview/index.js --loader:.js=jsx --watch"
   },
   "dependencies": {
