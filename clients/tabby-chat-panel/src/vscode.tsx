@@ -2,36 +2,48 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 
 import type { Context } from './index'
-import { useClient } from './react';
+import { useClient, useServer } from './react';
+
+declare global {
+  interface Window {
+    token?: string;
+    endpoint?: string;
+  }
+}
 
 function ChatPanel () {
+  const [endpoint, setEndpoint] = React.useState("")
+  const [token, setToken] = React.useState("")
   const iframeRef = React.useRef<HTMLIFrameElement>(null)
+
   const client = useClient(iframeRef, {
     navigate: (context: Context) => {
-      // FIXME(wwayne); handling jumping in the VSCode
+      // FIXME(wwayne); Invoke VSCode API
     }
   })
 
   React.useEffect(() => {
-    if (iframeRef?.current) {
+    setEndpoint(window.endpoint || "")
+    setToken(window.token || "")
+  }, [])
+
+  React.useEffect(() => {
+    if (iframeRef?.current && token) {
       client?.init({
         fetcherOptions: {
-          // FIXME(wwayne): from env
-          authorization: "auth_3ffbe153efc94796b7726c58a9edb44c"
+          authorization: token
         }
       })
     }
-  }, [iframeRef?.current, client])
+  }, [iframeRef?.current, client, token])
 
   return (
     <iframe
-      // FIXME(wwayne): from env
-      src="http://localhost:8080/chat"
+      src={`${endpoint}/chat`}
       style={{
         width: '100vw',
         height: '100vh'
       }}
-      key={'asdf'}
       ref={iframeRef} />
   )
 }

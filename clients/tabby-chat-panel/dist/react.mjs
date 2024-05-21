@@ -1,24 +1,24 @@
-import { useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient, createServer } from './index.mjs';
 import '@quilted/threads';
 
 function useClient(iframeRef, api) {
-  const clientRef = useRef(null);
+  const [client, setClient] = useState(null);
   useEffect(() => {
-    if (iframeRef.current && !clientRef.current) {
-      clientRef.current = createClient(iframeRef.current, api);
+    if (iframeRef.current && !client) {
+      setClient(createClient(iframeRef.current, api));
     }
-  }, [iframeRef.current]);
-  return clientRef.current;
+  }, [iframeRef.current, client]);
+  return client;
 }
 function useServer(api) {
-  const serverRef = useRef(null);
+  const [server, setServer] = useState(null);
   useEffect(() => {
     const isInIframe = window.self !== window.top;
-    if (isInIframe && !serverRef.current)
-      serverRef.current = createServer(api);
+    if (isInIframe && !server)
+      setServer(createServer(api));
   }, []);
-  return serverRef.current;
+  return server;
 }
 
 export { useClient, useServer };

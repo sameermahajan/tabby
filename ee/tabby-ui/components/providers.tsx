@@ -14,6 +14,8 @@ import { ShowDemoBannerProvider } from '@/components/demo-banner'
 import { TopbarProgressProvider } from './topbar-progress-indicator'
 
 export function Providers({ children, ...props }: ThemeProviderProps) {
+  const pathName = usePathname()
+  const isPublicPath = ['/chat'].includes(pathName)
   return (
     <NextThemesProvider {...props}>
       <UrqlProvider value={client}>
@@ -21,7 +23,7 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
           <AuthProvider>
             <TopbarProgressProvider>
               <ShowDemoBannerProvider>
-                <EnsureSignin />
+                {!isPublicPath && <EnsureSignin />}
                 {children}
               </ShowDemoBannerProvider>
             </TopbarProgressProvider>
@@ -33,13 +35,6 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
 }
 
 function EnsureSignin() {
-  const pathname = usePathname()
-  const excludePath = ['/chat']
-
-  if (excludePath.includes(pathname)) {
-    return <></>
-  }
-
   useAuthenticatedSession()
   return <></>
 }

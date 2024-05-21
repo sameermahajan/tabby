@@ -1,30 +1,30 @@
 import type { RefObject } from 'react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 import type { ServerApi, ClientApi } from './index'
 import { createClient, createServer } from './index'
 
 function useClient(iframeRef: RefObject<HTMLIFrameElement>, api: ClientApi) {
-  const [client, setClient] = useState<ServerApi | null>(null);
+  const clientRef = useRef<ServerApi | null>(null)
 
   useEffect(() => {
-    if (iframeRef.current && !client) {
-      setClient(createClient(iframeRef.current, api))
+    if (iframeRef.current && !clientRef.current) {
+      clientRef.current = createClient(iframeRef.current, api)
     }
-  }, [iframeRef.current, client])
+  }, [iframeRef.current])
 
-  return client
+  return clientRef.current
 }
 
 function useServer(api: ServerApi) {
-  const [server, setServer] = useState<ClientApi | null>(null);
+  const serverRef = useRef<ClientApi | null>(null)
 
   useEffect(() => {
     const isInIframe = window.self !== window.top
-    if (isInIframe && !server) setServer(createServer(api))
+    if (isInIframe && !serverRef.current) serverRef.current = createServer(api)
   }, [])
 
-  return server
+  return serverRef.current
 }
 
 export {

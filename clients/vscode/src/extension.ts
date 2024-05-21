@@ -41,7 +41,7 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(statusBarItem.register());
 
   // Register chat panel
-  const chatViewProvider = new ChatViewProvider(context.extensionUri);
+  const chatViewProvider = new ChatViewProvider(context);
 	context.subscriptions.push(
 		window.registerWebviewViewProvider(
 			"tabby.chatView",

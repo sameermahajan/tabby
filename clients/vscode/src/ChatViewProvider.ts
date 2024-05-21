@@ -1,5 +1,7 @@
-import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn, WebviewViewProvider, WebviewView, TextDocument } from "vscode";
+import { ExtensionContext, Disposable, Webview, WebviewPanel, window, Uri, ViewColumn, WebviewViewProvider, WebviewView, TextDocument } from "vscode";
 import { getUri, getNonce } from "./utils";
+
+import { createAgentInstance, disposeAgentInstance } from "./agent";
 
 /**
  * This class manages the state and behavior of HelloWorld webview panels.
@@ -14,6 +16,8 @@ import { getUri, getNonce } from "./utils";
 export class ChatViewProvider implements WebviewViewProvider {
   _view?: WebviewView;
    _doc?: TextDocument;
+  private readonly _extensionUri: Uri
+  private readonly _context: ExtensionContext
 
   // public static currentPanel: ChatViewPanel | undefined;
   // private readonly _panel: WebviewPanel;
@@ -39,7 +43,10 @@ export class ChatViewProvider implements WebviewViewProvider {
   //   this._setWebviewMessageListener(this._panel.webview);
   // }
 
-  constructor(private readonly _extensionUri: Uri) { }
+  constructor(context: ExtensionContext) {
+    this._extensionUri = context.extensionUri
+    this._context = context;
+  }
 
   /**
    * Renders the current webview panel if it exists otherwise a new webview panel
@@ -73,14 +80,14 @@ export class ChatViewProvider implements WebviewViewProvider {
   //   }
   // }
 
-  public resolveWebviewView(webviewView: WebviewView) {
+  public async resolveWebviewView(webviewView: WebviewView) {
     this._view = webviewView;
 
     webviewView.webview.options = {
       enableScripts: true,
       localResourceRoots: [this._extensionUri],
     };
-    webviewView.webview.html = this._getWebviewContent(webviewView.webview, this._extensionUri);
+    webviewView.webview.html = await this._getWebviewContent(webviewView.webview, this._extensionUri);
     webviewView.webview.onDidReceiveMessage((data) => {
       console.log('onDidReceiveMessage data', data)
       switch (data.command) {
@@ -125,29 +132,28 @@ export class ChatViewProvider implements WebviewViewProvider {
    * @returns A template string literal containing the HTML that should be
    * rendered within the webview panel
    */
-  private _getWebviewContent(webview: Webview, extensionUri: Uri) {
-
+  private async _getWebviewContent(webview: Webview, extensionUri: Uri) {
+    const agent = await createAgentInstance(this._context);
+    console.log('hheheheh>>>>>')
+    const { server } = agent.getConfig()
     const nonce = getNonce();
-
+    const scriptUri = getUri(webview, extensionUri, ['webview', "index.js"]);
     // Tip: Install the es6-string-html VS Code extension to enable code highlighting below
+    
+    console.log(server.endpoint)
     return /*html*/ `
       <!DOCTYPE html>
       <html lang="en">
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>Hello World</title>
+          <title>Tabby</title>
         </head>
         <body>
           <div id="root"></div>
-          <script type="module">
-            import RefreshRuntime from "http://localhost:4000/@react-refresh"
-            RefreshRuntime.injectIntoGlobalHook(window)
-            window.$RefreshReg$ = () => {}
-            window.$RefreshSig$ = () => (type) => type
-            window.__vite_plugin_react_preamble_installed__ = true
-          </script>
-          <script type="module" src="http://localhost:4000/src/vscode.tsx"></script>
+          <script>window.endpoint="${server.endpoint}"</script>
+          <script>window.token="${server.token}"</script>
+          <script type="module" src="${scriptUri}"></script>
         </body>
       </html>
     `;

@@ -3,7 +3,7 @@ import { defineBuildConfig } from 'unbuild'
 export default defineBuildConfig({
   entries: [
     'src/index',
-    'src/react',
+    'src/react'
   ],
   declaration: true,
   clean: true,
