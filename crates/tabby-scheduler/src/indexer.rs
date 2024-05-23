@@ -11,7 +11,7 @@ pub trait IndexAttributeBuilder<T>: Send + Sync {
     async fn build_attributes(&self, document: &T) -> serde_json::Value;
     async fn build_chunk_attributes(
         &self,
-        document: &T,
+        document: T,
     ) -> BoxStream<(Vec<String>, serde_json::Value)>;
 }
 
@@ -74,7 +74,7 @@ impl<T> Indexer<T> {
     ) -> impl Stream<Item = TantivyDocument> + '_ {
         let schema = IndexSchema::instance();
         self.builder
-            .build_chunk_attributes(&document)
+            .build_chunk_attributes(document)
             .await
             .enumerate()
             .map(move |(chunk_id, (tokens, chunk_attributes))| {

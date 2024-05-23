@@ -52,7 +52,7 @@ impl IndexAttributeBuilder<SourceDocument> for DocBuilder {
     /// into binarized tokens by thresholding on zero.
     async fn build_chunk_attributes(
         &self,
-        document: &SourceDocument,
+        document: SourceDocument,
     ) -> BoxStream<(Vec<String>, serde_json::Value)> {
         let splitter = TextSplitter::new(CHUNK_SIZE);
         let embedding = self.embedding.clone();

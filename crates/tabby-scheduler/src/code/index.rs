@@ -78,18 +78,20 @@ fn is_valid_file(file: &SourceCode) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::code::intelligence::CodeIntelligence;
 
     #[test]
     fn test_code_splitter() {
         let intelligence = CodeIntelligence::default();
         let file_contents = include_str!("../../../http-api-bindings/src/chat/openai_chat.rs");
         let rust_chunks = intelligence
-            .chunks(file_contents, "rust")
+            .chunks(file_contents, "rust".into())
+            .into_iter()
             .map(|(_, chunk)| chunk)
             .collect::<Vec<_>>();
         let text_chunks = intelligence
-            .chunks(file_contents, "unknown")
+            .chunks(file_contents, "unknown".into())
+            .into_iter()
             .map(|(_, chunk)| chunk)
             .collect::<Vec<_>>();
         assert_eq!(rust_chunks, text_chunks);

@@ -64,7 +64,7 @@ impl IndexAttributeBuilder<KeyedSourceCode> for CodeBuilder {
 
     async fn build_chunk_attributes(
         &self,
-        source_code: &KeyedSourceCode,
+        source_code: KeyedSourceCode,
     ) -> BoxStream<(Vec<String>, serde_json::Value)> {
         let source_code = &source_code.code;
         let text = match source_code.read_content() {
@@ -82,7 +82,7 @@ impl IndexAttributeBuilder<KeyedSourceCode> for CodeBuilder {
         let source_code = source_code.clone();
         let s = stream! {
             let intelligence = CodeIntelligence::default();
-            for (start_line, body) in intelligence.chunks(&text) {
+            for (start_line, body) in intelligence.chunks(&text, &source_code.language) {
                 let tokens = code::tokenize_code(body);
                 yield (tokens, json!({
                     code::fields::CHUNK_FILEPATH: source_code.filepath,
